@@ -1,0 +1,125 @@
+import streamlit as st
+from openai import OpenAI
+from gtts import gTTS
+import os
+
+# Initialize OpenAI Client (Make sure to set your API key)
+# Storing the key securely in Streamlit secrets is best practice
+client = OpenAI(api_key=st.secrets.get("OPENAI_API_KEY", "YOUR_FALLBACK_API_KEY"))
+
+st.set_page_config(page_title="Sahabat Cerita AI", page_icon="📖", layout="wide")
+
+# App Styling for Primary Students
+st.title("📖 Sahabat Cerita AI / AI Story Buddy")
+st.write("Cipta cerita pengembaraan kamu sendiri! / Create your own adventure story!")
+
+
+
+# 1. THE INTERACTIVE INPUT ZONE (Emoji Buttons)
+st.header("🎨 Pilih Elemen Cerita / Choose Story Elements")
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    character = st.selectbox(
+        "🐱 Pilih Watak / Choose Character",
+        ["Kucing Comel (Cute Cat)", "Angkasawan Berani (Brave Astronaut)", "Naga Kecil (Little Dragon)", "Arnab Bijak (Clever Rabbit)"]
+    )
+
+with col2:
+    setting = st.selectbox(
+        "🚀 Pilih Tempat / Choose Setting",
+        ["Pulau Harta Karun (Treasure Island)", "Hutan Ajaib (Magical Forest)", "Planet Marikh (Mars)", "Istana Awan (Cloud Castle)"]
+    )
+
+with col3:
+    emotion = st.selectbox(
+        "😊 Pilih Emosi / Choose Emotion",
+        ["Gembira (Happy)", "Teruja (Excited)", "Misteri (Mysterious)"]
+    )
+
+# 2. GENERATION TRIGGER
+if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
+    
+    # System prompt forces the model to strictly return the requested format
+    system_instruction = (
+        "You are a primary school teacher specialized in bilingual English and Bahasa Melayu education. "
+        "Create a simple, engaging, moral story for children aged 7-10 based on user selections. "
+        "The story must have exactly 3 short pages/paragraphs. "
+        "Format your entire response strictly as follows so it can be parsed easily:\n"
+        "Page 1 EN: [English text]\nPage 1 BM: [Bahasa Melayu translation]\n"
+        "Page 2 EN: [English text]\nPage 2 BM: [Bahasa Melayu translation]\n"
+        "Page 3 EN: [English text]\nPage 3 BM: [Bahasa Melayu translation]\n"
+        "Keep sentences structurally simple, encouraging vocabulary alignment."
+    )
+    
+    user_prompt = f"Character: {character}. Setting: {setting}. Mood/Emotion: {emotion}."
+    
+    with st.spinner("Peri AI sedang menulis cerita kamu... 🪄"):
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4o-mini", # Cost-effective and highly reliable for language structural matching
+                messages=[
+                    {"role": "system", "content": system_instruction},
+                    {"role": "user", "content": user_prompt}
+                ],
+                temperature=0.7
+            )
+            
+            raw_story = response.choices[0].message.content
+            
+            # Parse the structured response into visual pages
+            lines = raw_story.split("\n")
+            pages = {}
+            for line in lines:
+                if "Page 1 EN:" in line: pages['p1_en'] = line.replace("Page 1 EN:", "").strip()
+                if "Page 1 BM:" in line: pages['p1_bm'] = line.replace("Page 1 BM:", "").strip()
+                if "Page 2 EN:" in line: pages['p2_en'] = line.replace("Page 2 EN:", "").strip()
+                if "Page 2 BM:" in line: pages['p2_bm'] = line.replace("Page 2 BM:", "").strip()
+                if "Page 3 EN:" in line: pages['p3_en'] = line.replace("Page 3 EN:", "").strip()
+                if "Page 3 BM:" in line: pages['p3_bm'] = line.replace("Page 3 BM:", "").strip()
+            
+            #---
+            # 3. INTERACTIVE BILINGUAL DISPLAY ZONE
+            st.header("✨ Buku Cerita Digital Kamu / Your Digital Storybook")
+            
+            # Tabbed interface mimicking turning pages
+            tab1, tab2, tab3 = st.tabs(["Muka Surat 1", "Muka Surat 2", "Muka Surat 3"])
+            
+            with tab1:
+                st.subheader("🇬🇧 English")
+                st.info(pages.get('p1_en', 'Story generation error.'))
+                st.subheader("🇲🇾 Bahasa Melayu")
+                st.success(pages.get('p1_bm', 'Ralat penjanaan cerita.'))
+                
+                # Audio Pronunciation
+                if 'p1_en' in pages:
+                    tts_en = gTTS(text=pages['p1_en'], lang='en')
+                    tts_en.save("p1_en.mp3")
+                    st.audio("p1_en.mp3", format="audio/mp3")
+
+            with tab2:
+                st.subheader("🇬🇧 English")
+                st.info(pages.get('p2_en', 'Story generation error.'))
+                st.subheader("🇲🇾 Bahasa Melayu")
+                st.success(pages.get('p2_bm', 'Ralat penjanaan cerita.'))
+                
+                if 'p2_en' in pages:
+                    tts_en = gTTS(text=pages['p2_en'], lang='en')
+                    tts_en.save("p2_en.mp3")
+                    st.audio("p2_en.mp3", format="audio/mp3")
+
+            with tab3:
+                st.subheader("🇬🇧 English")
+                st.info(pages.get('p3_en', 'Story generation error.'))
+                st.subheader("🇲🇾 Bahasa Melayu")
+                st.success(pages.get('p3_bm', 'Ralat penjanaan cerita.'))
+                
+                if 'p3_en' in pages:
+                    tts_en = gTTS(text=pages['p3_en'], lang='en')
+                    tts_en.save("p3_en.mp3")
+                    with open("p3_en.mp3", "rb") as audio_file:
+                        st.audio(audio_file.read(), format="audio/mp3")
+                    
+        except Exception as e:
+            st.error(f"Error communicating with AI: {e}")

@@ -1,20 +1,20 @@
 import streamlit as st
-import google.generativeai as genai
 from gtts import gTTS
 import os
-
-# Configure the free Gemini API service directly using your secrets asset
-if "GEMINI_API_KEY" in st.secrets:
-    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-else:
-    # Fallback to check if it's stored under a different variable identifier
-    for key in st.secrets:
-        if "KEY" in key.upper():
-            genai.configure(api_key=st.secrets[key])
 
 def generate_cartoon_illustration(story_text):
     """Generates a child-friendly cartoon image using Gemini's free Imagen model."""
     try:
+        # Inline import to prevent boot-time ModuleNotFoundError
+        import google.generativeai as genai
+        
+        if "GEMINI_API_KEY" in st.secrets:
+            genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+        else:
+            for key in st.secrets:
+                if "KEY" in key.upper():
+                    genai.configure(api_key=st.secrets[key])
+
         prompt = f"A vibrant, child-friendly digital cartoon illustration for a children's book. Watercolor style, simple friendly shapes, bright colors. Scene description: {story_text}"
         model = genai.ImageGenerationModel("imagen-3.0-generate-002")
         result = model.generate_images(
@@ -28,14 +28,14 @@ def generate_cartoon_illustration(story_text):
         print(f"Gemini Imagen Error: {e}")
         return None
 
-# Your existing configuration line
+# App configuration line
 st.set_page_config(page_title="Sahabat Cerita AI", page_icon="📖", layout="wide")
 
 # App Styling for Primary Students
 st.title("📖 Sahabat Cerita AI / AI Story Buddy")
-st.write("Cipta cerita pengembaraan kamu sendiri! / Create your own adventure story!")
+st.write("Cipta cerita pengembaraan kamu own! / Create your own adventure story!")
 
-# 1. THE INTERACTIVE INPUT ZONE (Emoji Buttons)
+# 1. THE INTERACTIVE INPUT ZONE
 st.header("🎨 Pilih Elemen Cerita / Choose Story Elements")
 
 coll, col2, col3 = st.columns(3)
@@ -61,7 +61,14 @@ with col3:
 if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
     with st.spinner("✨ Sedang mencipta cerita magik kamu... / Creating your magic story..."):
         try:
-            # Generate Text using Gemini
+            import google.generativeai as genai
+            if "GEMINI_API_KEY" in st.secrets:
+                genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+            else:
+                for key in st.secrets:
+                    if "KEY" in key.upper():
+                        genai.configure(api_key=st.secrets[key])
+
             text_model = genai.GenerativeModel("gemini-1.5-flash")
             story_prompt = f"""
             Write a 3-page children's story based on: Character: {character}, Setting: {setting}, Emotion: {emotion}.
@@ -72,14 +79,12 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
             """
             response = text_model.generate_content(story_prompt)
             
-            # Clean response text up and safely parse dictionary
             clean_text = response.text.strip().replace("```python", "").replace("```", "")
             pages = eval(clean_text)
 
-            # 3. INTERACTIVE BILINGUAL DISPLAY ZONE
+            # # 3. INTERACTIVE BILINGUAL DISPLAY ZONE
             st.header("✨ Buku Cerita Digital Kamu / Your Digital Storybook")
 
-            # Tabbed interface mimicking turning pages
             tab1, tab2, tab3 = st.tabs(["Muka Surat 1", "Muka Surat 2", "Muka Surat 3"])
 
             with tab1:
@@ -151,4 +156,3 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
         except Exception as global_err:
             st.error("An issue occurred generating the content layout.")
             st.exception(global_err)
-            

@@ -70,7 +70,6 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
     user_prompt = f"Character: {character}. Setting: {setting}. Mood/Emotion: {emotion}."
     
     with st.spinner("Peri AI sedang menulis cerita kamu... 🪄"):
-        try:
             response = client.chat.completions.create(
                 model="gpt-4o-mini", # Cost-effective and highly reliable for language structural matching
                 messages=[
@@ -94,8 +93,6 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                 if "Page 3 BM:" in line: pages['p3_bm'] = line.replace("Page 3 BM:", "").strip()
 
             except Exception as e:
-                st.error(f"Error processing story structure: {e}")
-
 # # 3. INTERACTIVE BILINGUAL DISPLAY ZONE
 st.header("✨ Buku Cerita Digital Kamu / Your Digital Storybook")
 

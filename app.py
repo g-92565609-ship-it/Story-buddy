@@ -126,52 +126,25 @@ with tab1:
                     tts_ms = gTTS(text=pages['p1_bm'], lang='ms')
                     tts_ms.save("p1_ms.mp3")
                     st.audio("p1_ms.mp3", format="audio/mp3")
-
     with tab2:
         # Generate and display cartoon illustration for Page 2
-            if 'p2_en' in pages:
-            image_url = generate_cartoon_illustration(pages['p2_en'])
-                if image_url:
-                    st.image(image_url, use_container_width=True, caption="AI Illustrated Scene (Based on Page 2 Text)")
-                else:
-                st.warning("Could not load page illustration.")
-
-        # Your existing code starts here (st.subheader, st.info, etc.)
-                st.subheader("🇬🇧 English")
-                st.info(pages.get('p2_en', 'Story generation error.'))
-                st.subheader("🇲🇾 Bahasa Melayu")
-                st.success(pages.get('p2_bm', 'Ralat penjanaan cerita.'))
-                
-                if 'p2_en' in pages:
-                    tts_en = gTTS(text=pages['p2_en'], lang='en')
-                    tts_en.save("p2_en.mp3")
-                    st.audio("p2_en.mp3", format="audio/mp3")
-
-                if 'p2_bm' in pages:
-                    tts_ms = gTTS(text=pages['p2_bm'], lang='ms')
+        if 'p2_en' in pages:
+        image_url = generate_cartoon_illustration(pages['p2_en'])
+            if image_url:
+            st.image(image_url, use_container_width=True, caption="AI Illustrated Scene")
+            else:
+            st.warning("Could not load page illustration.")
                     tts_ms.save("p2_ms.mp3")
                     st.audio("p2_ms.mp3", format="audio/mp3")
 
-    with tab3:
+   with tab3:
         # Generate and display cartoon illustration for Page 3
-            if 'p3_en' in pages:
-                image_url = generate_cartoon_illustration(pages['p3_en'])
-                    if image_url:
-                        st.image(image_url, use_container_width=True, caption="AI Illustrated Scene (Based on Page 3 Text)")
-                else:
-                    st.warning("Could not load page illustration.")
-        
-                        st.subheader("🇬🇧 English")
-                        st.info(pages.get('p3_en', 'Story generation error.'))
-                        st.subheader("🇲🇾 Bahasa Melayu")
-                        st.success(pages.get('p3_bm', 'Ralat penjanaan cerita.'))
-                if 'p3_en' in pages:
-                    tts_en = gTTS(text=pages['p3_en'], lang='en')
-                    tts_en.save("p3_en.mp3")
-                    st.audio("p3_en.mp3", format="audio/mp3")
-
-                if 'p3_bm' in pages:
-                    tts_ms = gTTS(text=pages['p3_bm'], lang='ms')
+        if 'p3_en' in pages:
+        image_url = generate_cartoon_illustration(pages['p3_en'])
+            if image_url:
+            st.image(image_url, use_container_width=True, caption="AI Illustrated Scene")
+            else:
+            st.warning("Could not load page illustration.")
                     tts_ms.save("p3_ms.mp3")
                     st.audio("p3_ms.mp3", format="audio/mp3")
                     

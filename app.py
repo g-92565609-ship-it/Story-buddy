@@ -92,7 +92,8 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                 if "Page 3 EN:" in line: pages['p3_en'] = line.replace("Page 3 EN:", "").strip()
                 if "Page 3 BM:" in line: pages['p3_bm'] = line.replace("Page 3 BM:", "").strip()
 
-            except Exception as e:
+
+
 # # 3. INTERACTIVE BILINGUAL DISPLAY ZONE
 st.header("✨ Buku Cerita Digital Kamu / Your Digital Storybook")
 

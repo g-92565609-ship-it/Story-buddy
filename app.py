@@ -127,8 +127,8 @@ with tab1:
                     tts_ms.save("p1_ms.mp3")
                     st.audio("p1_ms.mp3", format="audio/mp3")
 
-        with tab2:
-            # Generate and display cartoon illustration for Page 2
+    with tab2:
+        # Generate and display cartoon illustration for Page 2
             if 'p2_en' in pages:
             image_url = generate_cartoon_illustration(pages['p2_en'])
                 if image_url:
@@ -152,9 +152,9 @@ with tab1:
                     tts_ms.save("p2_ms.mp3")
                     st.audio("p2_ms.mp3", format="audio/mp3")
 
-            with tab3:
-                # Generate and display cartoon illustration for Page 3
-                if 'p3_en' in pages:
+    with tab3:
+        # Generate and display cartoon illustration for Page 3
+            if 'p3_en' in pages:
                 image_url = generate_cartoon_illustration(pages['p3_en'])
                     if image_url:
                         st.image(image_url, use_container_width=True, caption="AI Illustrated Scene (Based on Page 3 Text)")

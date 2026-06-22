@@ -3,10 +3,24 @@ from openai import OpenAI
 from gtts import gTTS
 import os
 
-# Initialize OpenAI Client (Make sure to set your API key)
-# Storing the key securely in Streamlit secrets is best practice
+# Initialize OpenAI Client
 client = OpenAI(api_key=st.secrets.get("OPENAI_API_KEY", "YOUR_FALLBACK_API_KEY"))
 
+def generate_cartoon_illustration(story_text):
+    """Generates a child-friendly cartoon image based on the page text."""
+    try:
+        prompt = f"A vibrant, child-friendly digital cartoon illustration for a children's book. Scene description: {story_text}"
+        response = client.images.generate(
+            model="dall-e-3",
+            prompt=prompt,
+            n=1,
+            size="1024x1024"
+        )
+        return response.data[0].url
+    except Exception as e:
+        return None
+
+# Your existing configuration line
 st.set_page_config(page_title="Sahabat Cerita AI", page_icon="📖", layout="wide")
 
 # App Styling for Primary Students
@@ -80,13 +94,21 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                 if "Page 3 BM:" in line: pages['p3_bm'] = line.replace("Page 3 BM:", "").strip()
             
             #---
-            # 3. INTERACTIVE BILINGUAL DISPLAY ZONE
-            st.header("✨ Buku Cerita Digital Kamu / Your Digital Storybook")
-            
+# 3. INTERACTIVE BILINGUAL DISPLAY ZONE
+    st.header("✨ Buku Cerita Digital Kamu / Your Digital Storybook")   
             # Tabbed interface mimicking turning pages
             tab1, tab2, tab3 = st.tabs(["Muka Surat 1", "Muka Surat 2", "Muka Surat 3"])
             
-            with tab1:
+    with tab1:
+        # Generate and display cartoon illustration for Page 1
+        if 'p1_en' in pages:
+            image_url = generate_cartoon_illustration(pages['p1_en'])
+            if image_url:
+                st.image(image_url, use_container_width=True, caption="AI Illustrated Scene (Based on Page 1 Text)")
+            else:
+                st.warning("Could not load page illustration.")
+
+        # Your existing subheader code follows directly underneath:
                 st.subheader("🇬🇧 English")
                 st.info(pages.get('p1_en', 'Story generation error.'))
                 st.subheader("🇲🇾 Bahasa Melayu")
@@ -104,7 +126,16 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                     tts_ms.save("p1_ms.mp3")
                     st.audio("p1_ms.mp3", format="audio/mp3")
 
-            with tab2:
+        with tab2:
+            # Generate and display cartoon illustration for Page 2
+            if 'p2_en' in pages:
+            image_url = generate_cartoon_illustration(pages['p2_en'])
+                if image_url:
+                    st.image(image_url, use_container_width=True, caption="AI Illustrated Scene (Based on Page 2 Text)")
+                else:
+                st.warning("Could not load page illustration.")
+
+        # Your existing code starts here (st.subheader, st.info, etc.)
                 st.subheader("🇬🇧 English")
                 st.info(pages.get('p2_en', 'Story generation error.'))
                 st.subheader("🇲🇾 Bahasa Melayu")
@@ -121,11 +152,18 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                     st.audio("p2_ms.mp3", format="audio/mp3")
 
             with tab3:
-                st.subheader("🇬🇧 English")
-                st.info(pages.get('p3_en', 'Story generation error.'))
-                st.subheader("🇲🇾 Bahasa Melayu")
-                st.success(pages.get('p3_bm', 'Ralat penjanaan cerita.'))
-                
+                # Generate and display cartoon illustration for Page 3
+                if 'p3_en' in pages:
+                image_url = generate_cartoon_illustration(pages['p3_en'])
+                    if image_url:
+                        st.image(image_url, use_container_width=True, caption="AI Illustrated Scene (Based on Page 3 Text)")
+                else:
+                    st.warning("Could not load page illustration.")
+        
+                        st.subheader("🇬🇧 English")
+                        st.info(pages.get('p3_en', 'Story generation error.'))
+                        st.subheader("🇲🇾 Bahasa Melayu")
+                        st.success(pages.get('p3_bm', 'Ralat penjanaan cerita.'))
                 if 'p3_en' in pages:
                     tts_en = gTTS(text=pages['p3_en'], lang='en')
                     tts_en.save("p3_en.mp3")

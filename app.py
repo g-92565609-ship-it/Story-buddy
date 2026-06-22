@@ -1,46 +1,19 @@
 import streamlit as st
-from gtts import gTTS
 import os
-
-def generate_cartoon_illustration(story_text):
-    """Generates a child-friendly cartoon image using Gemini's free Imagen model."""
-    try:
-        # Inline import to prevent boot-time ModuleNotFoundError
-        import google.generativeai as genai
-        
-        if "GEMINI_API_KEY" in st.secrets:
-            genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-        else:
-            for key in st.secrets:
-                if "KEY" in key.upper():
-                    genai.configure(api_key=st.secrets[key])
-
-        prompt = f"A vibrant, child-friendly digital cartoon illustration for a children's book. Watercolor style, simple friendly shapes, bright colors. Scene description: {story_text}"
-        model = genai.GenerativeModel("imagen-3.0-generate-002")
-        result = model.generate_images(
-            prompt=prompt,
-            number_of_images=1,
-            aspect_ratio="1:1",
-            file_output_format="jpeg"
-        )
-        return result.generated_images[0].image
-    except Exception as e:
-        print(f"Gemini Imagen Error: {e}")
-        return None
 
 # App configuration line
 st.set_page_config(page_title="Sahabat Cerita AI", page_icon="📖", layout="wide")
 
 # App Styling for Primary Students
 st.title("📖 Sahabat Cerita AI / AI Story Buddy")
-st.write("Cipta cerita pengembaraan kamu own! / Create your own adventure story!")
+st.write("Cipta cerita pengembaraan kamu sendiri! / Create your own adventure story!")
 
 # 1. THE INTERACTIVE INPUT ZONE
 st.header("🎨 Pilih Elemen Cerita / Choose Story Elements")
 
-coll, col2, col3 = st.columns(3)
+col1, col2, col3 = st.columns(3)
 
-with coll:
+with col1:
     character = st.selectbox(
         "🐱 Pilih Watak / Choose Character",
         ["Kucing Comel (Cute Cat)", "Anjing Setia (Loyal Dog)", "Burung Bijak (Wise Bird)", "Arnab Pintar (Clever Rabbit)"]
@@ -61,7 +34,10 @@ with col3:
 if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
     with st.spinner("✨ Sedang mencipta cerita magik kamu... / Creating your magic story..."):
         try:
+            # Safe inline imports to prevent boot crashes
+            from gtts import gTTS
             import google.generativeai as genai
+            
             if "GEMINI_API_KEY" in st.secrets:
                 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
             else:
@@ -82,26 +58,16 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
             clean_text = response.text.strip().replace("```python", "").replace("```", "")
             pages = eval(clean_text)
 
-            # # 3. INTERACTIVE BILINGUAL DISPLAY ZONE
             st.header("✨ Buku Cerita Digital Kamu / Your Digital Storybook")
-
             tab1, tab2, tab3 = st.tabs(["Muka Surat 1", "Muka Surat 2", "Muka Surat 3"])
 
             with tab1:
-                if 'p1_en' in pages:
-                    story_img = generate_cartoon_illustration(pages['p1_en'])
-                    if story_img:
-                        st.image(story_img, use_container_width=True, caption="AI Illustrated Scene")
-                    else:
-                        st.warning("Could not load page illustration.")
-
                 if 'p1_en' in pages:
                     st.subheader("🇬🇧 English")
                     st.info(pages['p1_en'])
                     tts_en = gTTS(text=pages['p1_en'], lang='en')
                     tts_en.save("p1_en.mp3")
                     st.audio("p1_en.mp3", format="audio/mp3")
-
                 if 'p1_bm' in pages:
                     st.subheader("🇲🇾 Bahasa Melayu")
                     st.success(pages['p1_bm'])
@@ -111,19 +77,11 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
 
             with tab2:
                 if 'p2_en' in pages:
-                    story_img = generate_cartoon_illustration(pages['p2_en'])
-                    if story_img:
-                        st.image(story_img, use_container_width=True, caption="AI Illustrated Scene")
-                    else:
-                        st.warning("Could not load page illustration.")
-
-                if 'p2_en' in pages:
                     st.subheader("🇬🇧 English")
                     st.info(pages['p2_en'])
                     tts_en = gTTS(text=pages['p2_en'], lang='en')
                     tts_en.save("p2_en.mp3")
                     st.audio("p2_en.mp3", format="audio/mp3")
-
                 if 'p2_bm' in pages:
                     st.subheader("🇲🇾 Bahasa Melayu")
                     st.success(pages['p2_bm'])
@@ -133,19 +91,11 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
 
             with tab3:
                 if 'p3_en' in pages:
-                    story_img = generate_cartoon_illustration(pages['p3_en'])
-                    if story_img:
-                        st.image(story_img, use_container_width=True, caption="AI Illustrated Scene")
-                    else:
-                        st.warning("Could not load page illustration.")
-
-                if 'p3_en' in pages:
                     st.subheader("🇬🇧 English")
                     st.info(pages['p3_en'])
                     tts_en = gTTS(text=pages['p3_en'], lang='en')
                     tts_en.save("p3_en.mp3")
                     st.audio("p3_en.mp3", format="audio/mp3")
-
                 if 'p3_bm' in pages:
                     st.subheader("🇲🇾 Bahasa Melayu")
                     st.success(pages['p3_bm'])

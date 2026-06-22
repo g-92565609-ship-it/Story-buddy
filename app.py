@@ -16,7 +16,7 @@ def generate_cartoon_illustration(story_text):
                     genai.configure(api_key=st.secrets[key])
 
         prompt = f"A vibrant, child-friendly digital cartoon illustration for a children's book. Watercolor style, simple friendly shapes, bright colors. Scene description: {story_text}"
-        model = genai.ImageGenerationModel("imagen-3.0-generate-002")
+        model = genai.GenerativeModel("imagen-3.0-generate-002")
         result = model.generate_images(
             prompt=prompt,
             number_of_images=1,
@@ -69,7 +69,7 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                     if "KEY" in key.upper():
                         genai.configure(api_key=st.secrets[key])
 
-            text_model = genai.GenerativeModel("gemini-1.5-flash")
+            text_model = genai.GenerativeModel("gemini-pro")
             story_prompt = f"""
             Write a 3-page children's story based on: Character: {character}, Setting: {setting}, Emotion: {emotion}.
             For each page, provide exactly one page of English and its translation in Bahasa Melayu.

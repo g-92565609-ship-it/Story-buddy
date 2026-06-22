@@ -99,7 +99,7 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
             tab1, tab2, tab3 = st.tabs(["Muka Surat 1", "Muka Surat 2", "Muka Surat 3"])
 
             with tab1:
-                # Generate and display cartoon illustration for Page 1
+                # 1. Illustration
                 if 'p1_en' in pages:
                     image_url = generate_cartoon_illustration(pages['p1_en'])
                     if image_url:
@@ -107,20 +107,25 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                     else:
                         st.warning("Could not load page illustration.")
 
-                # Audio Pronunciation for Page 1
+                # 2. English Text Block & Audio
                 if 'p1_en' in pages:
+                    st.subheader("🇬🇧 English")
+                    st.info(pages['p1_en'])
                     tts_en = gTTS(text=pages['p1_en'], lang='en')
                     tts_en.save("p1_en.mp3")
                     st.audio("p1_en.mp3", format="audio/mp3")
 
+                # 3. Bahasa Melayu Text Block & Audio
                 if 'p1_bm' in pages:
+                    st.subheader("🇲🇾 Bahasa Melayu")
+                    st.success(pages['p1_bm'])
                     tts_ms = gTTS(text=pages['p1_bm'], lang='ms')
                     tts_ms.save("p1_ms.mp3")
                     st.audio("p1_ms.mp3", format="audio/mp3")
 
 
             with tab2:
-                # Generate and display cartoon illustration for Page 2
+                # 1. Illustration
                 if 'p2_en' in pages:
                     image_url = generate_cartoon_illustration(pages['p2_en'])
                     if image_url:
@@ -128,20 +133,25 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                     else:
                         st.warning("Could not load page illustration.")
 
-                # Audio Pronunciation for Page 2
+                # 2. English Text Block & Audio
                 if 'p2_en' in pages:
+                    st.subheader("🇬🇧 English")
+                    st.info(pages['p2_en'])
                     tts_en = gTTS(text=pages['p2_en'], lang='en')
                     tts_en.save("p2_en.mp3")
                     st.audio("p2_en.mp3", format="audio/mp3")
 
+                # 3. Bahasa Melayu Text Block & Audio
                 if 'p2_bm' in pages:
+                    st.subheader("🇲🇾 Bahasa Melayu")
+                    st.success(pages['p2_bm'])
                     tts_ms = gTTS(text=pages['p2_bm'], lang='ms')
                     tts_ms.save("p2_ms.mp3")
                     st.audio("p2_ms.mp3", format="audio/mp3")
 
 
             with tab3:
-                # Generate and display cartoon illustration for Page 3
+                # 1. Illustration
                 if 'p3_en' in pages:
                     image_url = generate_cartoon_illustration(pages['p3_en'])
                     if image_url:
@@ -149,13 +159,18 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                     else:
                         st.warning("Could not load page illustration.")
 
-                # Audio Pronunciation for Page 3
+                # 2. English Text Block & Audio
                 if 'p3_en' in pages:
+                    st.subheader("🇬🇧 English")
+                    st.info(pages['p3_en'])
                     tts_en = gTTS(text=pages['p3_en'], lang='en')
                     tts_en.save("p3_en.mp3")
                     st.audio("p3_en.mp3", format="audio/mp3")
 
+                # 3. Bahasa Melayu Text Block & Audio
                 if 'p3_bm' in pages:
+                    st.subheader("🇲🇾 Bahasa Melayu")
+                    st.success(pages['p3_bm'])
                     tts_ms = gTTS(text=pages['p3_bm'], lang='ms')
                     tts_ms.save("p3_ms.mp3")
                     st.audio("p3_ms.mp3", format="audio/mp3")

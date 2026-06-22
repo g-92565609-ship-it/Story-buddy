@@ -93,7 +93,7 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                 if "Page 3 EN:" in line: pages['p3_en'] = line.replace("Page 3 EN:", "").strip()
                 if "Page 3 BM:" in line: pages['p3_bm'] = line.replace("Page 3 BM:", "").strip()
 
-       except Exception as e:
+            except Exception as e:
                 st.error(f"Error processing story structure: {e}")
 
 # # 3. INTERACTIVE BILINGUAL DISPLAY ZONE
@@ -101,8 +101,6 @@ st.header("✨ Buku Cerita Digital Kamu / Your Digital Storybook")
 
 # Tabbed interface mimicking turning pages
 tab1, tab2, tab3 = st.tabs(["Muka Surat 1", "Muka Surat 2", "Muka Surat 3"])
-            
-    with tab1:
         # Generate and display cartoon illustration for Page 1
         if 'p1_en' in pages:
             image_url = generate_cartoon_illustration(pages['p1_en'])

@@ -104,11 +104,19 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
             with tab1:
                 # 1. Illustration
                 if 'p1_en' in pages:
-                    image_url = generate_cartoon_illustration(pages['p1_en'])
-                    if image_url:
+                    try:
+                        prompt = f"A vibrant, child-friendly digital cartoon illustration for a children's book. Watercolor style, simple friendly shapes, bright colors. Scene description: {pages['p1_en']}"
+                        response = client.images.generate(
+                            model="dall-e-3",
+                            prompt=prompt,
+                            n=1,
+                            size="1024x1024"
+                        )
+                        image_url = response.data[0].url
                         st.image(image_url, use_container_width=True, caption="AI Illustrated Scene")
-                    else:
-                        st.warning("Could not load page illustration.")
+                    except Exception as img_err:
+                        st.error(f"⚠️ DALL-E Error on Page 1:")
+                        st.exception(img_err)
 
                 # 2. English Text Block & Audio
                 if 'p1_en' in pages:
@@ -130,11 +138,19 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
             with tab2:
                 # 1. Illustration
                 if 'p2_en' in pages:
-                    image_url = generate_cartoon_illustration(pages['p2_en'])
-                    if image_url:
+                    try:
+                        prompt = f"A vibrant, child-friendly digital cartoon illustration for a children's book. Watercolor style, simple friendly shapes, bright colors. Scene description: {pages['p2_en']}"
+                        response = client.images.generate(
+                            model="dall-e-3",
+                            prompt=prompt,
+                            n=1,
+                            size="1024x1024"
+                        )
+                        image_url = response.data[0].url
                         st.image(image_url, use_container_width=True, caption="AI Illustrated Scene")
-                    else:
-                        st.warning("Could not load page illustration.")
+                    except Exception as img_err:
+                        st.error(f"⚠️ DALL-E Error on Page 2:")
+                        st.exception(img_err)
 
                 # 2. English Text Block & Audio
                 if 'p2_en' in pages:
@@ -156,11 +172,19 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
             with tab3:
                 # 1. Illustration
                 if 'p3_en' in pages:
-                    image_url = generate_cartoon_illustration(pages['p3_en'])
-                    if image_url:
+                    try:
+                        prompt = f"A vibrant, child-friendly digital cartoon illustration for a children's book. Watercolor style, simple friendly shapes, bright colors. Scene description: {pages['p3_en']}"
+                        response = client.images.generate(
+                            model="dall-e-3",
+                            prompt=prompt,
+                            n=1,
+                            size="1024x1024"
+                        )
+                        image_url = response.data[0].url
                         st.image(image_url, use_container_width=True, caption="AI Illustrated Scene")
-                    else:
-                        st.warning("Could not load page illustration.")
+                    except Exception as img_err:
+                        st.error(f"⚠️ DALL-E Error on Page 3:")
+                        st.exception(img_err)
 
                 # 2. English Text Block & Audio
                 if 'p3_en' in pages:

@@ -99,8 +99,10 @@ st.header("✨ Buku Cerita Digital Kamu / Your Digital Storybook")
 
 # Tabbed interface mimicking turning pages
 tab1, tab2, tab3 = st.tabs(["Muka Surat 1", "Muka Surat 2", "Muka Surat 3"])
-        # Generate and display cartoon illustration for Page 1
-        if 'p1_en' in pages:
+
+with tab1:
+    # Generate and display cartoon illustration for Page 1
+    if 'p1_en' in pages:
             image_url = generate_cartoon_illustration(pages['p1_en'])
             if image_url:
                 st.image(image_url, use_container_width=True, caption="AI Illustrated Scene (Based on Page 1 Text)")

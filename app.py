@@ -45,7 +45,7 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                     if "KEY" in key.upper():
                         genai.configure(api_key=st.secrets[key])
 
-            text_model = genai.GenerativeModel("gemini-1.5-flash")
+            text_model = genai.GenerativeModel("gemini-2.5-flash")
             story_prompt = f"""
             Write a 3-page children's story based on: Character: {character}, Setting: {setting}, Emotion: {emotion}.
             For each page, provide exactly one page of English and its translation in Bahasa Melayu.

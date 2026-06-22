@@ -94,9 +94,14 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                 
                 # Audio Pronunciation
                 if 'p1_en' in pages:
-                    tts_en = gTTS(text=pages['p1_en'], lang='en')
-                    tts_en.save("p1_en.mp3")
-                    st.audio("p1_en.mp3", format="audio/mp3")
+                tts_en = gTTS(text=pages['p1_en'], lang='en')
+                tts_en.save("p1_en.mp3")
+                st.audio("p1_en.mp3", format="audio/mp3")
+            
+                if 'p1_bm' in pages:
+                tts_ms = gTTS(text=pages['p1_bm'], lang='ms')
+                tts_ms.save("p1_ms.mp3")
+                st.audio("p1_ms.mp3", format="audio/mp3")
 
             with tab2:
                 st.subheader("🇬🇧 English")
@@ -108,6 +113,11 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                     tts_en = gTTS(text=pages['p2_en'], lang='en')
                     tts_en.save("p2_en.mp3")
                     st.audio("p2_en.mp3", format="audio/mp3")
+                    
+                if 'p2_bm' in pages:
+                tts_ms = gTTS(text=pages['p2_bm'], lang='ms')
+                tts_ms.save("p2_ms.mp3")
+                st.audio("p2_ms.mp3", format="audio/mp3")
 
             with tab3:
                 st.subheader("🇬🇧 English")
@@ -120,6 +130,11 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                     tts_en.save("p3_en.mp3")
                     with open("p3_en.mp3", "rb") as audio_file:
                         st.audio(audio_file.read(), format="audio/mp3")
+                
+                if 'p3_bm' in pages:
+                    tts_ms = gTTS(text=pages['p3_bm'], lang='ms')
+                    tts_ms.save("p3_ms.mp3")
+                    st.audio("p3_ms.mp3", format="audio/mp3")
                     
         except Exception as e:
             st.error(f"Error communicating with AI: {e}")

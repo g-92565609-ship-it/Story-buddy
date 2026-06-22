@@ -9,15 +9,18 @@ client = OpenAI(api_key=st.secrets.get("OPENAI_API_KEY", "YOUR_FALLBACK_API_KEY"
 def generate_cartoon_illustration(story_text):
     """Generates a child-friendly cartoon image based on the page text."""
     try:
-        prompt = f"A vibrant, child-friendly digital cartoon illustration for a children's book. Scene description: {story_text}"
+        prompt = f"A vibrant, child-friendly digital cartoon illustration for a children's book. Watercolor style, simple friendly shapes, bright colors. Scene description: {story_text}"
         response = client.images.generate(
             model="dall-e-3",
             prompt=prompt,
             n=1,
             size="1024x1024"
         )
+        # Directly return the web URL string from the response object
         return response.data[0].url
     except Exception as e:
+        # This will print the exact hidden error to your Streamlit logs so you can see it!
+        print(f"DALL-E Generation Error: {e}")
         return None
 
 # Your existing configuration line

@@ -65,20 +65,14 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
             st.header("✨ Buku Cerita Digital Kamu / Your Digital Storybook")
             tab1, tab2, tab3 = st.tabs(["Muka Surat 1", "Muka Surat 2", "Muka Surat 3"])
 
-            # Dedicated function calling the true Imagen 3 model
+            # Standardized image function layout
             def generate_page_illustration(story_text):
                 try:
-                    img_prompt = f"Vibrant cartoon illustration for a children's storybook, flat vector style, cute character, bright colors: {story_text}"
-                    
-                    # Generate using the core Google AI Studio image generation tool
-                    result = genai.generate_images(
-                        model="imagen-3.0-generate-002",
-                        prompt=img_prompt,
-                        number_of_images=1
-                    )
-                    
-                    # Process and read the image bytes
-                    for image in result.generated_images:
+                    img_prompt = f"Cute colorful children book cartoon illustration, flat vector style: {story_text}"
+                    # Use the standard model call structure
+                    img_model = genai.ImageGenerationModel("imagen-3.0-generate-002")
+                    images_result = img_model.generate_images(prompt=img_prompt, number_of_images=1)
+                    for image in images_result.generated_images:
                         return Image.open(BytesIO(image.image.image_bytes))
                 except Exception as e:
                     return f"⚠️ Image generation profile error: {str(e)}"

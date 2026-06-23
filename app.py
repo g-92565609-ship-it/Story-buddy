@@ -65,14 +65,21 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
             st.header("✨ Buku Cerita Digital Kamu / Your Digital Storybook")
             tab1, tab2, tab3 = st.tabs(["Muka Surat 1", "Muka Surat 2", "Muka Surat 3"])
 
-            # Cleaned function to request and process image generation safely
+            # Cleaned function to request image bytes via gemini-2.5-flash
             def generate_page_illustration(story_text):
                 try:
-                    img_prompt = f"Cute colorful children book cartoon illustration, flat vector style: {story_text}"
-                    img_model = genai.ImageGenerationModel("imagen-3.0-generate-002")
-                    images_result = img_model.generate_images(prompt=img_prompt, number_of_images=1)
-                    for image in images_result.generated_images:
-                        return Image.open(BytesIO(image.image.image_bytes))
+                    img_prompt = f"Return a beautiful, vibrant cartoon illustration for a children's storybook based on this scene: {story_text}. Use your image generation modality output."
+                    # We call your active, working text_model directly but specify image response modalities
+                    img_resp = text_model.generate_content(
+                        img_prompt,
+                        generation_config={"response_modalities": ["IMAGE"]}
+                    )
+                    
+                    # Extract the raw image bytes from the model parts
+                    for part in img_resp.candidates[0].content.parts:
+                        if hasattr(part, 'inline_data') and part.inline_data:
+                            img_bytes = base64.b64decode(part.inline_data.data)
+                            return Image.open(BytesIO(img_bytes))
                 except Exception as e:
                     return f"⚠️ Image generation profile error: {str(e)}"
                 return None

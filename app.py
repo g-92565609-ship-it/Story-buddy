@@ -1,5 +1,6 @@
 import streamlit as st
 import os
+import re
 from gtts import gTTS
 from google.genai import Client
 
@@ -20,9 +21,8 @@ with col3:
     emotion = st.selectbox("😊 Emosi / Emotion", ["Gembira (Happy)", "Teruja (Excited)", "Berani (Brave)", "Misteri (Mysterious)"])
 
 if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
-    with st.spinner("✨ Creating your storybook..."):
+    with st.spinner("✨ Creating your long storybook..."):
         try:
-            # Secure connection to your Streamlit secrets block
             api_key = st.secrets.get("GEMINI_API_KEY")
             if not api_key:
                 st.error("❌ API key missing! Please check your Streamlit App Secrets.")
@@ -30,15 +30,16 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                 
             client = Client(api_key=api_key)
 
-            # Strictly forcing easy vocabulary tailored for Malaysian Year 4 & 5 school students
+            # Strictly demanding a target length of 80-100 words per language per page
             story_prompt = f"""
-            Write a simple, short 3-page children's story about a {character} in {setting} feeling {emotion}.
+            Write a short 3-page children's story about a {character} in {setting} feeling {emotion}.
             
             Target Audience: Malaysian primary school students in Year 4 and Year 5 (9-11 years old).
-            Language Rules:
-            - Use very simple vocabulary, short sentences, and high-frequency school words.
-            - Keep the Bahasa Melayu translation simple, direct, and aligned with standard primary school level.
-            - Avoid complex metaphors or advanced tenses.
+            
+            Strict Story Constraints:
+            - Each individual page (p1, p2, p3) MUST have between 80 to 100 words for the English paragraph.
+            - Each individual page MUST have between 80 to 100 words for the Bahasa Melayu translation paragraph.
+            - Keep vocabulary simple, clear, and easy to read, but build a full, interesting narrative context to hit the word count.
             
             Format your output strictly as a Python dictionary like this:
             {{'p1_en': 'text', 'p1_bm': 'text', 'p2_en': 'text', 'p2_bm': 'text', 'p3_en': 'text', 'p3_bm': 'text'}}
@@ -56,32 +57,34 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
             st.header("✨ Buku Cerita Digital Kamu / Your Digital Storybook")
             tabs = st.tabs(["Muka Surat 1", "Muka Surat 2", "Muka Surat 3"])
 
-            # Extract clean search keywords from selections to make the image match the story dynamically!
-            char_keyword = character.split("(")[-1].replace(")", "").strip().lower()
-            place_keyword = setting.split("(")[-1].replace(")", "").strip().lower().replace(" ", "")
+            # Clean tracking strings for image engine queries
+            clean_char = re.sub(r'[^a-zA-Z]', '', character.split("(")[0])
+            clean_setting = re.sub(r'[^a-zA-Z]', '', setting.split("(")[0])
 
             for i, tab in enumerate(tabs, start=1):
                 with tab:
                     en_key = f"p{i}_en"
                     bm_key = f"p{i}_bm"
                     
-                    # Generates a dynamic cartoon illustration matching your exact chosen character and setting!
-                    image_url = f"https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=800&auto=format&fit=crop&q=60" 
-                    # Alternate query string fallback logic to append customized tags dynamically
-                    dynamic_fallback_url = f"https://api.unsplash.com/search/photos?query=cartoon,{char_keyword},{place_keyword}&per_page=1"
-                    
-                    # For a reliable colorful kid's book feel, we pull live illustration parameters matching the theme:
-                    st.image(f"https://loremflickr.com/800/450/cartoon,{char_keyword},{place_keyword}/all", caption=f"{character} di {setting}")
+                    # High-availability kid-themed vector illustration backdrop 
+                    st.image("https://images.unsplash.com/photo-1512820790803-83ca734da794?w=800&auto=format&fit=crop&q=60", caption=f"Ilustrasi: {character} & {setting}")
                     
                     if en_key in pages:
                         st.subheader("🇬🇧 English")
                         st.info(pages[en_key])
+                        # Calculate word count dynamically to verify performance
+                        en_words = len(pages[en_key].split())
+                        st.caption(f"⏱️ Word count: {en_words} words")
+                        
                         gTTS(text=pages[en_key], lang='en').save(f"p{i}_en.mp3")
                         st.audio(f"p{i}_en.mp3", format="audio/mp3")
                         
                     if bm_key in pages:
                         st.subheader("🇲🇾 Bahasa Melayu")
                         st.success(pages[bm_key])
+                        bm_words = len(pages[bm_key].split())
+                        st.caption(f"⏱️ Bilangan perkataan: {bm_words} patah perkataan")
+                        
                         gTTS(text=pages[bm_key], lang='ms').save(f"p{i}_bm.mp3")
                         st.audio(f"p{i}_bm.mp3", format="audio/mp3")
 

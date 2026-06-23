@@ -2,7 +2,8 @@ import streamlit as st
 import os
 import json
 from gtts import gTTS
-from huggingface_hub import InferenceClient
+from google.genai import Client
+from google.genai import types
 
 # Setup page layout
 st.set_page_config(page_title="Sahabat Cerita AI", page_icon="📖", layout="wide")
@@ -21,12 +22,15 @@ with col3:
     emotion = st.selectbox("😊 Emosi / Emotion", ["Gembira (Happy)", "Teruja (Excited)", "Berani (Brave)", "Misteri (Mysterious)"])
 
 if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
-    with st.spinner("✨ Creating your long storybook..."):
+    with st.spinner("✨ Creating your bilingual storybook..."):
         try:
-            # Explicitly connecting to the free Hugging Face infrastructure endpoint
-            client = InferenceClient(
-                model="HuggingFaceH4/zephyr-7b-beta"
-            )
+            # Safely fetch your API key from Streamlit secrets
+            api_key = st.secrets.get("GEMINI_API_KEY")
+            if not api_key:
+                st.error("❌ API key missing! Please check your Streamlit App Secrets.")
+                st.stop()
+                
+            client = Client(api_key=api_key)
 
             story_prompt = f"""
             Write a short 3-page children's story about a {character} in {setting} feeling {emotion}.
@@ -37,30 +41,29 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
             - Each individual page MUST have between 80 to 100 words for the Bahasa Melayu translation paragraph.
             
             Return the output strictly matching this JSON layout format:
-            {{"p1_en": "text", "p1_bm": "text", "p2_en": "text", "p2_bm": "text", "p3_en": "text", "p3_bm": "text"}}
-            
-            Return ONLY raw valid JSON text. Do not wrap in markdown or backticks.
+            {{
+                "p1_en": "text", "p1_bm": "text",
+                "p2_en": "text", "p2_bm": "text",
+                "p3_en": "text", "p3_bm": "text"
+            }}
             """
             
-            # Requesting generation text directly from the public pipeline
-            response = client.text_generation(
-                story_prompt,
-                max_new_tokens=1200,
-                temperature=0.7
+            # Utilizing gemini-2.0-flash for high quota reliability
+            response = client.models.generate_content(
+                model='gemini-2.0-flash',
+                contents=story_prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json"
+                )
             )
             
-            # Clean up potential markdown wrapper code if added
-            clean_text = response.strip()
-            if "```json" in clean_text:
-                clean_text = clean_text.split("```json")[1].split("```")[0].strip()
-            elif "```" in clean_text:
-                clean_text = clean_text.split("```")[1].split("```")[0].strip()
-
-            pages = json.loads(clean_text)
+            # Parses directly without markdown or backtick syntax cutoff risks
+            pages = json.loads(response.text.strip())
 
             st.header("✨ Buku Cerita Digital Kamu / Your Digital Storybook")
             tabs = st.tabs(["Muka Surat 1", "Muka Surat 2", "Muka Surat 3"])
 
+            # Map inputs to clean kid-safe placeholder image categories
             img_map = {
                 "Pulau Harta Karun (Treasure Island)": "island",
                 "Hutan Magik (Magic Forest)": "forest",
@@ -74,6 +77,7 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                     en_key = f"p{i}_en"
                     bm_key = f"p{i}_bm"
                     
+                    # Generates a clean illustration scene placeholder matching the adventure setting
                     st.image(f"https://picsum.photos/800/450?random={i}&q={bg_topic}", caption=f"Ilustrasi Muka Surat {i}: {setting}")
                     
                     if en_key in pages:

@@ -40,13 +40,13 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
             Strict Story Constraints:
             - Each individual page (p1, p2, p3) MUST have between 80 to 100 words for the English paragraph.
             - Each individual page MUST have between 80 to 100 words for the Bahasa Melayu translation paragraph.
-            - Provide a short 3-4 word simple English search term describing the scene illustration for each page (e.g., 'cat on beach', 'rabbit space rocket').
+            - Provide a short 2-word simple English asset search phrase describing the theme scene for each page (e.g., 'cute cat', 'magic rabbit').
             
             Format your output strictly as a Python dictionary like this:
             {{
-                'p1_en': 'text', 'p1_bm': 'text', 'p1_img': 'simple keywords',
-                'p2_en': 'text', 'p2_bm': 'text', 'p2_img': 'simple keywords',
-                'p3_en': 'text', 'p3_bm': 'text', 'p3_img': 'simple keywords'
+                'p1_en': 'text', 'p1_bm': 'text', 'p1_img': 'keywords',
+                'p2_en': 'text', 'p2_bm': 'text', 'p2_img': 'keywords',
+                'p3_en': 'text', 'p3_bm': 'text', 'p3_img': 'keywords'
             }}
             Do not wrap the dictionary in markdown blocks. Return ONLY the raw dictionary text string.
             """
@@ -56,8 +56,7 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                 contents=story_prompt,
             )
             
-            clean_text = response.text.strip().replace("```python", "").replace("
-```", "")
+            clean_text = response.text.strip().replace("```python", "").replace("```", "")
             pages = eval(clean_text)
 
             st.header("✨ Buku Cerita Digital Kamu / Your Digital Storybook")
@@ -69,15 +68,12 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                     bm_key = f"p{i}_bm"
                     img_key = f"p{i}_img"
                     
-                    # Pull the specific page's illustration topic words, fallback to basic character if missing
+                    # Extract illustration keywords generated dynamically by Gemini
                     search_keywords = pages.get(img_key, "cute cartoon animal").strip()
-                    encoded_keywords = urllib.parse.quote(f"cartoon,{search_keywords}")
+                    encoded_keywords = urllib.parse.quote(f"illustration,cartoon,{search_keywords}")
                     
-                    # Ultra-stable source engine using clean vector search flags
-                    live_art_url = f"https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=60"
-                    
-                    # Generates live story-relevant vector illustrations dynamically
-                    st.image(f"https://loremflickr.com/800/450/{encoded_keywords}/all", caption=f"Ilustrasi Muka Surat {i}: {search_keywords}")
+                    # Uses dynamic query filtering to query specific animated art styles match selections
+                    st.image(f"https://loremflickr.com/800/450/{encoded_keywords}/all", caption=f"Ilustrasi: {search_keywords}")
                     
                     if en_key in pages:
                         st.subheader("🇬🇧 English")

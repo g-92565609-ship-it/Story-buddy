@@ -1,7 +1,8 @@
 import streamlit as st
 import os
 from gtts import gTTS
-from genai import Client
+# Fixed import line for the google-genai SDK package
+from google.genai import Client
 
 # Setup page layout
 st.set_page_config(page_title="Sahabat Cerita AI", page_icon="📖", layout="wide")
@@ -28,7 +29,7 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                 st.error("❌ API key missing! Please check your Streamlit App Secrets.")
                 st.stop()
                 
-            # Initialize using the modern SDK client framework that accepts AQ tokens natively
+            # Initialize client natively using your token credentials
             client = Client(api_key=api_key)
 
             story_prompt = f"""
@@ -55,7 +56,7 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                     en_key = f"p{i}_en"
                     bm_key = f"p{i}_bm"
                     
-                    # Permanent child storybook illustration placeholder to avoid rendering bugs
+                    # Stable placeholder storybook illustration
                     st.image("https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=800&auto=format&fit=crop&q=60", caption="Buku Cerita Digital / Digital Storybook")
                     
                     if en_key in pages:

@@ -1,5 +1,8 @@
 import streamlit as st
 import os
+import base64
+from io import BytesIO
+from PIL import Image
 
 # App configuration line
 st.set_page_config(page_title="Sahabat Cerita AI", page_icon="📖", layout="wide")
@@ -32,7 +35,7 @@ with col3:
     )
 
 if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
-    with st.spinner("✨ Sedang mencipta cerita magik kamu... / Creating your magic story..."):
+    with st.spinner("✨ Sedang mencipta cerita magik & lukisan kamu... / Creating your story & illustrations..."):
         try:
             # Safe inline imports to prevent boot crashes
             from gtts import gTTS
@@ -46,6 +49,8 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                         genai.configure(api_key=st.secrets[key])
 
             text_model = genai.GenerativeModel("gemini-2.5-flash")
+            img_model = genai.GenerativeModel("gemini-2.5-flash-image-preview")
+
             story_prompt = f"""
             Write a 3-page children's story based on: Character: {character}, Setting: {setting}, Emotion: {emotion}.
             For each page, provide exactly one page of English and its translation in Bahasa Melayu.
@@ -55,14 +60,34 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
             """
             response = text_model.generate_content(story_prompt)
             
-            clean_text = response.text.strip().replace("```python", "").replace("```", "")
+            clean_text = response.text.strip().replace("```python", "").replace("
+```", "")
             pages = eval(clean_text)
 
             st.header("✨ Buku Cerita Digital Kamu / Your Digital Storybook")
             tab1, tab2, tab3 = st.tabs(["Muka Surat 1", "Muka Surat 2", "Muka Surat 3"])
 
+            # Function to generate an illustration safely using response modalities
+            def generate_page_illustration(story_text):
+                try:
+                    img_prompt = f"Cute colorful children book cartoon illustration, flat vector style: {story_text}"
+                    img_resp = img_model.generate_content(
+                        img_prompt,
+                        generation_config=genai.GenerationConfig(response_modalities=["image", "text"])
+                    )
+                    for part in img_resp.candidates[0].content.parts:
+                        if part.inline_data:
+                            img_data = base64.b64decode(part.inline_data.data)
+                            return Image.open(BytesIO(img_data))
+                except Exception:
+                    return None
+                return None
+
             with tab1:
                 if 'p1_en' in pages:
+                    img1 = generate_page_illustration(pages['p1_en'])
+                    if img1:
+                        st.image(img1, use_container_width=True)
                     st.subheader("🇬🇧 English")
                     st.info(pages['p1_en'])
                     tts_en = gTTS(text=pages['p1_en'], lang='en')
@@ -77,6 +102,9 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
 
             with tab2:
                 if 'p2_en' in pages:
+                    img2 = generate_page_illustration(pages['p2_en'])
+                    if img2:
+                        st.image(img2, use_container_width=True)
                     st.subheader("🇬🇧 English")
                     st.info(pages['p2_en'])
                     tts_en = gTTS(text=pages['p2_en'], lang='en')
@@ -91,6 +119,9 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
 
             with tab3:
                 if 'p3_en' in pages:
+                    img3 = generate_page_illustration(pages['p3_en'])
+                    if img3:
+                        st.image(img3, use_container_width=True)
                     st.subheader("🇬🇧 English")
                     st.info(pages['p3_en'])
                     tts_en = gTTS(text=pages['p3_en'], lang='en')

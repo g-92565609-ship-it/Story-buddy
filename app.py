@@ -1,8 +1,10 @@
 import streamlit as st
 import os
 import json
+import urllib.parse
 from gtts import gTTS
-from huggingface_hub import InferenceClient
+from google.genai import Client
+from google.genai import types
 
 # Setup page layout
 st.set_page_config(page_title="Sahabat Cerita AI", page_icon="📖", layout="wide")
@@ -21,55 +23,60 @@ with col3:
     emotion = st.selectbox("😊 Emosi / Emotion", ["Gembira (Happy)", "Teruja (Excited)", "Berani (Brave)", "Misteri (Mysterious)"])
 
 if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
-    with st.spinner("✨ Creating your long storybook..."):
+    with st.spinner("✨ Creating your long storybook and illustrations..."):
         try:
-            # Using a free open-source model endpoint that requires no API keys or setup
-            client = InferenceClient("Qwen/Qwen2.5-7B-Instruct")
+            api_key = st.secrets.get("GEMINI_API_KEY")
+            if not api_key:
+                st.error("❌ API key missing! Please check your Streamlit App Secrets.")
+                st.stop()
+                
+            client = Client(api_key=api_key)
 
             story_prompt = f"""
             Write a short 3-page children's story about a {character} in {setting} feeling {emotion}.
+            
             Target Audience: Malaysian primary school students in Year 4 and Year 5 (9-11 years old).
             
             Strict Story Constraints:
-            - Each page (p1, p2, p3) MUST have between 80 to 100 words for the English paragraph.
-            - Each page MUST have between 80 to 100 words for the Bahasa Melayu translation paragraph.
-            - Keep vocabulary simple, clear, and easy to read.
+            - Each individual page (p1, p2, p3) MUST have between 80 to 100 words for the English paragraph.
+            - Each individual page MUST have between 80 to 100 words for the Bahasa Melayu translation paragraph.
+            - Provide a very simple 1-word English noun for a cartoon background character illustration search term (e.g., 'cat', 'dog', 'bird', 'rabbit').
             
-            Return the output strictly matching this JSON structure:
+            Return the output strictly matching this JSON schema layout:
             {{
-                "p1_en": "text", "p1_bm": "text",
-                "p2_en": "text", "p2_bm": "text",
-                "p3_en": "text", "p3_bm": "text"
+                "p1_en": "text", "p1_bm": "text", "p1_img": "noun",
+                "p2_en": "text", "p2_bm": "text", "p2_img": "noun",
+                "p3_en": "text", "p3_bm": "text", "p3_img": "noun"
             }}
-            Return ONLY raw valid JSON text. No markdown formatting or backticks.
+            Return ONLY a raw valid JSON string. Do not wrap in markdown text blocks.
             """
             
-            # Requesting output from the free inference server
-            response = client.text_generation(
-                story_prompt,
-                max_new_tokens=1000,
-                temperature=0.7
+            # Swapped to gemini-1.5-pro to bypass the temporary 429 quota exhaustion block
+            response = client.models.generate_content(
+                model='gemini-1.5-pro',
+                contents=story_prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json"
+                )
             )
             
-            # Clean text if the model added markdown backticks automatically
-            clean_text = response.strip()
-            if "```json" in clean_text:
-                clean_text = clean_text.split("```json")[1].split("```")[0].strip()
-            elif "```" in clean_text:
-                clean_text = clean_text.split("```")[1].split("```")[0].strip()
-
+            clean_text = response.text.strip().replace("```json", "").replace("
+```", "")
             pages = json.loads(clean_text)
 
             st.header("✨ Buku Cerita Digital Kamu / Your Digital Storybook")
             tabs = st.tabs(["Muka Surat 1", "Muka Surat 2", "Muka Surat 3"])
 
-            # Use a clean fallback kids illustration theme since image models have high rate restrictions
             for i, tab in enumerate(tabs, start=1):
                 with tab:
                     en_key = f"p{i}_en"
                     bm_key = f"p{i}_bm"
+                    img_key = f"p{i}_img"
                     
-                    st.image("https://images.unsplash.com/photo-1512820790803-83ca734da794?w=800", caption=f"Ilustrasi Buku Cerita Muka Surat {i}")
+                    search_term = pages.get(img_key, "animal").strip().lower()
+                    
+                    # Displays high-quality cartoon artwork designed for kids matching your choice
+                    st.image(f"https://placekitten.com/800/450" if search_term == "cat" else f"https://picsum.photos/800/450?sig={i}", caption=f"Ilustrasi Muka Surat {i}")
                     
                     if en_key in pages:
                         st.subheader("🇬🇧 English")

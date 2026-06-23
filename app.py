@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 from gtts import gTTS
-import google.generativeai as genai
+from genai import Client
 
 # Setup page layout
 st.set_page_config(page_title="Sahabat Cerita AI", page_icon="📖", layout="wide")
@@ -13,11 +13,11 @@ st.header("🎨 Pilih Elemen Cerita / Choose Story Elements")
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    character = st.selectbox("🐱 Watak / Character", ["Cat", "Dog", "Bird", "Rabbit"])
+    character = st.selectbox("🐱 Watak / Character", ["Kucing Comel (Cute Cat)", "Anjing Setia (Loyal Dog)", "Burung Bijak (Wise Bird)", "Arnab Nakal (Naughty Rabbit)"])
 with col2:
-    setting = st.selectbox("🚀 Tempat / Setting", ["Treasure Island", "Magic Forest", "Outer Space", "Cloud Castle"])
+    setting = st.selectbox("🚀 Tempat / Setting", ["Pulau Harta Karun (Treasure Island)", "Hutan Magik (Magic Forest)", "Angkasa Lepas (Outer Space)", "Istana Awan (Cloud Castle)"])
 with col3:
-    emotion = st.selectbox("😊 Emosi / Emotion", ["Happy", "Excited", "Brave", "Mysterious"])
+    emotion = st.selectbox("😊 Emosi / Emotion", ["Gembira (Happy)", "Teruja (Excited)", "Berani (Brave)", "Misteri (Mysterious)"])
 
 if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
     with st.spinner("✨ Creating your storybook..."):
@@ -28,8 +28,8 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                 st.error("❌ API key missing! Please check your Streamlit App Secrets.")
                 st.stop()
                 
-            genai.configure(api_key=api_key)
-            text_model = genai.GenerativeModel("gemini-2.5-flash")
+            # Initialize using the modern SDK client framework that accepts AQ tokens natively
+            client = Client(api_key=api_key)
 
             story_prompt = f"""
             Write a short 3-page children's story about a {character} in {setting} feeling {emotion}.
@@ -39,7 +39,11 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
             Do not wrap the dictionary in markdown blocks. Return ONLY the raw dictionary text string.
             """
             
-            response = text_model.generate_content(story_prompt)
+            response = client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=story_prompt,
+            )
+            
             clean_text = response.text.strip().replace("```python", "").replace("```", "")
             pages = eval(clean_text)
 
@@ -51,8 +55,8 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                     en_key = f"p{i}_en"
                     bm_key = f"p{i}_bm"
                     
-                    # Stable, permanent placeholder vector illustration to prevent network hangs
-                    st.image("https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=800&auto=format&fit=crop&q=60", caption="Buku Cerita Digital")
+                    # Permanent child storybook illustration placeholder to avoid rendering bugs
+                    st.image("https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=800&auto=format&fit=crop&q=60", caption="Buku Cerita Digital / Digital Storybook")
                     
                     if en_key in pages:
                         st.subheader("🇬🇧 English")
@@ -67,5 +71,5 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                         st.audio(f"p{i}_bm.mp3", format="audio/mp3")
 
         except Exception as err:
-            st.error("An authentication profile issue occurred.")
+            st.error("An execution or formatting error occurred.")
             st.exception(err)

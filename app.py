@@ -1,9 +1,9 @@
 import streamlit as st
 import os
-import re
-import urllib.parse
+import json
 from gtts import gTTS
 from google.genai import Client
+from google.genai import types
 
 # Setup page layout
 st.set_page_config(page_title="Sahabat Cerita AI", page_icon="📖", layout="wide")
@@ -22,7 +22,7 @@ with col3:
     emotion = st.selectbox("😊 Emosi / Emotion", ["Gembira (Happy)", "Teruja (Excited)", "Berani (Brave)", "Misteri (Mysterious)"])
 
 if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
-    with st.spinner("✨ Creating your custom storybook and illustrations..."):
+    with st.spinner("✨ Creating your long storybook and generating custom illustrations..."):
         try:
             api_key = st.secrets.get("GEMINI_API_KEY")
             if not api_key:
@@ -31,7 +31,7 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                 
             client = Client(api_key=api_key)
 
-            # Prompt asking for clean keyword descriptions for matching artwork
+            # Requesting a strict JSON structure instead of a text dictionary to prevent eval errors
             story_prompt = f"""
             Write a short 3-page children's story about a {character} in {setting} feeling {emotion}.
             
@@ -40,24 +40,26 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
             Strict Story Constraints:
             - Each individual page (p1, p2, p3) MUST have between 80 to 100 words for the English paragraph.
             - Each individual page MUST have between 80 to 100 words for the Bahasa Melayu translation paragraph.
-            - Provide a short 2-word simple English asset search phrase describing the theme scene for each page (e.g., 'cute cat', 'magic rabbit').
+            - Provide a detailed English descriptive prompt for an image generator showing the scene layout.
             
-            Format your output strictly as a Python dictionary like this:
+            Return the output strictly matching this JSON schema layout:
             {{
-                'p1_en': 'text', 'p1_bm': 'text', 'p1_img': 'keywords',
-                'p2_en': 'text', 'p2_bm': 'text', 'p2_img': 'keywords',
-                'p3_en': 'text', 'p3_bm': 'text', 'p3_img': 'keywords'
+                "p1_en": "text", "p1_bm": "text", "p1_img_prompt": "description",
+                "p2_en": "text", "p2_bm": "text", "p2_img_prompt": "description",
+                "p3_en": "text", "p3_bm": "text", "p3_img_prompt": "description"
             }}
-            Do not wrap the dictionary in markdown blocks. Return ONLY the raw dictionary text string.
+            Return ONLY the raw valid JSON object. Do not wrap in markdown or backticks.
             """
             
             response = client.models.generate_content(
                 model='gemini-2.5-flash',
                 contents=story_prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json"
+                )
             )
             
-            clean_text = response.text.strip().replace("```python", "").replace("```", "")
-            pages = eval(clean_text)
+            pages = json.loads(response.text.strip())
 
             st.header("✨ Buku Cerita Digital Kamu / Your Digital Storybook")
             tabs = st.tabs(["Muka Surat 1", "Muka Surat 2", "Muka Surat 3"])
@@ -66,14 +68,29 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                 with tab:
                     en_key = f"p{i}_en"
                     bm_key = f"p{i}_bm"
-                    img_key = f"p{i}_img"
+                    img_prompt_key = f"p{i}_img_prompt"
                     
-                    # Extract illustration keywords generated dynamically by Gemini
-                    search_keywords = pages.get(img_key, "cute cartoon animal").strip()
-                    encoded_keywords = urllib.parse.quote(f"illustration,cartoon,{search_keywords}")
-                    
-                    # Uses dynamic query filtering to query specific animated art styles match selections
-                    st.image(f"https://loremflickr.com/800/450/{encoded_keywords}/all", caption=f"Ilustrasi: {search_keywords}")
+                    # Generate a native custom cartoon illustration using Imagen 3
+                    if img_prompt_key in pages:
+                        try:
+                            raw_prompt = pages[img_prompt_key]
+                            full_image_prompt = f"Cute children's book illustration, 3D cartoon style, vibrant colors, friendly character, safe for kids: {raw_prompt}"
+                            
+                            image_result = client.models.generate_images(
+                                model='imagen-3.0-generate-002',
+                                prompt=full_image_prompt,
+                                config=types.GenerateImagesConfig(
+                                    number_of_images=1,
+                                    output_mime_type="image/jpeg",
+                                    aspect_ratio="16:9"
+                                )
+                            )
+                            
+                            for generated_image in image_result.generated_images:
+                                st.image(generated_image.image.image_bytes, caption=f"Ilustrasi Muka Surat {i}")
+                        except Exception as img_err:
+                            st.warning("⚠️ Could not generate custom illustration, rendering placeholder scene instead.")
+                            st.image("https://images.unsplash.com/photo-1512820790803-83ca734da794?w=800", caption="Ilustrasi Buku Cerita")
                     
                     if en_key in pages:
                         st.subheader("🇬🇧 English")

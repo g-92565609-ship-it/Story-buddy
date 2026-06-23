@@ -23,9 +23,10 @@ with col3:
 if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
     with st.spinner("✨ Creating your long storybook..."):
         try:
-            # Using a fallback community token to keep generation completely free and bypass limits
-            token = "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"  
-            client = InferenceClient("Qwen/Qwen2.5-7B-Instruct")
+            # Explicitly connecting to the free Hugging Face infrastructure endpoint
+            client = InferenceClient(
+                model="HuggingFaceH4/zephyr-7b-beta"
+            )
 
             story_prompt = f"""
             Write a short 3-page children's story about a {character} in {setting} feeling {emotion}.
@@ -41,14 +42,14 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
             Return ONLY raw valid JSON text. Do not wrap in markdown or backticks.
             """
             
-            # Direct text generation call
+            # Requesting generation text directly from the public pipeline
             response = client.text_generation(
                 story_prompt,
-                max_new_tokens=1500,
+                max_new_tokens=1200,
                 temperature=0.7
             )
             
-            # Safeguard text parsing to extract raw JSON
+            # Clean up potential markdown wrapper code if added
             clean_text = response.strip()
             if "```json" in clean_text:
                 clean_text = clean_text.split("```json")[1].split("```")[0].strip()

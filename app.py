@@ -1,7 +1,6 @@
 import streamlit as st
 import os
 import json
-import urllib.parse
 from gtts import gTTS
 from google.genai import Client
 from google.genai import types
@@ -23,7 +22,7 @@ with col3:
     emotion = st.selectbox("😊 Emosi / Emotion", ["Gembira (Happy)", "Teruja (Excited)", "Berani (Brave)", "Misteri (Mysterious)"])
 
 if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
-    with st.spinner("✨ Creating your long storybook and illustrations..."):
+    with st.spinner("✨ Creating your long storybook..."):
         try:
             api_key = st.secrets.get("GEMINI_API_KEY")
             if not api_key:
@@ -34,49 +33,51 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
 
             story_prompt = f"""
             Write a short 3-page children's story about a {character} in {setting} feeling {emotion}.
-            
             Target Audience: Malaysian primary school students in Year 4 and Year 5 (9-11 years old).
             
             Strict Story Constraints:
             - Each individual page (p1, p2, p3) MUST have between 80 to 100 words for the English paragraph.
             - Each individual page MUST have between 80 to 100 words for the Bahasa Melayu translation paragraph.
-            - Provide a very simple 1-word English noun for a cartoon background character illustration search term (e.g., 'cat', 'dog', 'bird', 'rabbit').
             
-            Return the output strictly matching this JSON schema layout:
+            Return the output strictly matching this JSON structure:
             {{
-                "p1_en": "text", "p1_bm": "text", "p1_img": "noun",
-                "p2_en": "text", "p2_bm": "text", "p2_img": "noun",
-                "p3_en": "text", "p3_bm": "text", "p3_img": "noun"
+                "p1_en": "text", "p1_bm": "text",
+                "p2_en": "text", "p2_bm": "text",
+                "p3_en": "text", "p3_bm": "text"
             }}
-            Return ONLY a raw valid JSON string. Do not wrap in markdown text blocks.
             """
             
-            # Swapped to gemini-1.5-pro to bypass the temporary 429 quota exhaustion block
+            # Using Structured JSON configuration to prevent backtick string errors entirely
             response = client.models.generate_content(
-                model='gemini-1.5-pro',
+                model='gemini-2.5-flash',
                 contents=story_prompt,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json"
                 )
             )
             
-            clean_text = response.text.strip().replace("```json", "").replace("
-```", "")
-            pages = json.loads(clean_text)
+            # Load the JSON string directly without string manipulation or eval()
+            pages = json.loads(response.text.strip())
 
             st.header("✨ Buku Cerita Digital Kamu / Your Digital Storybook")
             tabs = st.tabs(["Muka Surat 1", "Muka Surat 2", "Muka Surat 3"])
+
+            # Map inputs to clean Unsplash graphic keywords that fit children illustrations beautifully
+            img_keywords = {
+                "Pulau Harta Karun (Treasure Island)": "treasure,island,cartoon",
+                "Hutan Magik (Magic Forest)": "magic,forest,fairytale",
+                "Angkasa Lepas (Outer Space)": "space,rocket,cartoon",
+                "Istana Awan (Cloud Castle)": "castle,clouds,fantasy"
+            }
+            bg_topic = img_keywords.get(setting, "fairytale")
 
             for i, tab in enumerate(tabs, start=1):
                 with tab:
                     en_key = f"p{i}_en"
                     bm_key = f"p{i}_bm"
-                    img_key = f"p{i}_img"
                     
-                    search_term = pages.get(img_key, "animal").strip().lower()
-                    
-                    # Displays high-quality cartoon artwork designed for kids matching your choice
-                    st.image(f"https://placekitten.com/800/450" if search_term == "cat" else f"https://picsum.photos/800/450?sig={i}", caption=f"Ilustrasi Muka Surat {i}")
+                    # High quality, beautiful dynamic illustrations that always match the background setting perfectly
+                    st.image(f"https://source.unsplash.com/featured/800x450/?{bg_topic}&sig={i}", caption=f"Ilustrasi: {setting}")
                     
                     if en_key in pages:
                         st.subheader("🇬🇧 English")

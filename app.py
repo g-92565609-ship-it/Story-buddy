@@ -49,7 +49,7 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                         genai.configure(api_key=st.secrets[key])
 
             text_model = genai.GenerativeModel("gemini-2.5-flash")
-            img_model = genai.GenerativeModel("gemini-2.5-flash-image-preview")
+            img_model = genai.GenerativeModel("imagen-3.0-generate-002")
 
             story_prompt = f"""
             Write a 3-page children's story based on: Character: {character}, Setting: {setting}, Emotion: {emotion}.
@@ -60,25 +60,19 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
             """
             response = text_model.generate_content(story_prompt)
             
-            clean_text = response.text.strip().replace("```python", "").replace("
-```", "")
+            clean_text = response.text.strip().replace("```python", "").replace("```", "")
             pages = eval(clean_text)
 
             st.header("✨ Buku Cerita Digital Kamu / Your Digital Storybook")
             tab1, tab2, tab3 = st.tabs(["Muka Surat 1", "Muka Surat 2", "Muka Surat 3"])
 
-            # Function to generate an illustration safely using response modalities
+            # Function to generate an illustration safely using Imagen
             def generate_page_illustration(story_text):
                 try:
                     img_prompt = f"Cute colorful children book cartoon illustration, flat vector style: {story_text}"
-                    img_resp = img_model.generate_content(
-                        img_prompt,
-                        generation_config=genai.GenerationConfig(response_modalities=["image", "text"])
-                    )
-                    for part in img_resp.candidates[0].content.parts:
-                        if part.inline_data:
-                            img_data = base64.b64decode(part.inline_data.data)
-                            return Image.open(BytesIO(img_data))
+                    result = img_model.generate_images(prompt=img_prompt, number_of_images=1)
+                    for image in result.generated_images:
+                        return Image.open(BytesIO(image.image.image_bytes))
                 except Exception:
                     return None
                 return None

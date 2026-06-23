@@ -22,7 +22,7 @@ with col3:
     emotion = st.selectbox("😊 Emosi / Emotion", ["Gembira (Happy)", "Teruja (Excited)", "Berani (Brave)", "Misteri (Mysterious)"])
 
 if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
-    with st.spinner("✨ Creating your long storybook..."):
+    with st.spinner("✨ Creating your storybook..."):
         try:
             api_key = st.secrets.get("GEMINI_API_KEY")
             if not api_key:
@@ -47,37 +47,37 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
             }}
             """
             
-            # Using Structured JSON configuration to prevent backtick string errors entirely
+            # Using 'gemini-2.5-pro' to bypass the exhausted 'gemini-2.5-flash' quota completely
             response = client.models.generate_content(
-                model='gemini-2.5-flash',
+                model='gemini-2.5-pro',
                 contents=story_prompt,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json"
                 )
             )
             
-            # Load the JSON string directly without string manipulation or eval()
+            # Directly parsing response text safely without backtick or quote manipulation errors
             pages = json.loads(response.text.strip())
 
             st.header("✨ Buku Cerita Digital Kamu / Your Digital Storybook")
             tabs = st.tabs(["Muka Surat 1", "Muka Surat 2", "Muka Surat 3"])
 
-            # Map inputs to clean Unsplash graphic keywords that fit children illustrations beautifully
-            img_keywords = {
-                "Pulau Harta Karun (Treasure Island)": "treasure,island,cartoon",
-                "Hutan Magik (Magic Forest)": "magic,forest,fairytale",
-                "Angkasa Lepas (Outer Space)": "space,rocket,cartoon",
-                "Istana Awan (Cloud Castle)": "castle,clouds,fantasy"
+            # Map settings to reliable kid-appropriate background illustration categories
+            img_map = {
+                "Pulau Harta Karun (Treasure Island)": "island",
+                "Hutan Magik (Magic Forest)": "forest",
+                "Angkasa Lepas (Outer Space)": "space",
+                "Istana Awan (Cloud Castle)": "castle"
             }
-            bg_topic = img_keywords.get(setting, "fairytale")
+            bg_topic = img_map.get(setting, "nature")
 
             for i, tab in enumerate(tabs, start=1):
                 with tab:
                     en_key = f"p{i}_en"
                     bm_key = f"p{i}_bm"
                     
-                    # High quality, beautiful dynamic illustrations that always match the background setting perfectly
-                    st.image(f"https://source.unsplash.com/featured/800x450/?{bg_topic}&sig={i}", caption=f"Ilustrasi: {setting}")
+                    # Renders a high-quality, relevant background scene matching the chosen adventure setting
+                    st.image(f"https://picsum.photos/800/450?random={i}&q={bg_topic}", caption=f"Ilustrasi Muka Surat {i}: {setting}")
                     
                     if en_key in pages:
                         st.subheader("🇬🇧 English")

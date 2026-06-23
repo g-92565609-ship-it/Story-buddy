@@ -49,7 +49,6 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                         genai.configure(api_key=st.secrets[key])
 
             text_model = genai.GenerativeModel("gemini-2.5-flash")
-            img_model = genai.GenerativeModel("imagen-3.0-generate-002")
 
             story_prompt = f"""
             Write a 3-page children's story based on: Character: {character}, Setting: {setting}, Emotion: {emotion}.
@@ -66,21 +65,24 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
             st.header("✨ Buku Cerita Digital Kamu / Your Digital Storybook")
             tab1, tab2, tab3 = st.tabs(["Muka Surat 1", "Muka Surat 2", "Muka Surat 3"])
 
-            # Function to generate an illustration safely using Imagen
+            # Cleaned function to request and process image generation safely
             def generate_page_illustration(story_text):
                 try:
                     img_prompt = f"Cute colorful children book cartoon illustration, flat vector style: {story_text}"
-                    result = img_model.generate_images(prompt=img_prompt, number_of_images=1)
-                    for image in result.generated_images:
+                    img_model = genai.ImageGenerationModel("imagen-3.0-generate-002")
+                    images_result = img_model.generate_images(prompt=img_prompt, number_of_images=1)
+                    for image in images_result.generated_images:
                         return Image.open(BytesIO(image.image.image_bytes))
-                except Exception:
-                    return None
+                except Exception as e:
+                    return f"⚠️ Image generation profile error: {str(e)}"
                 return None
 
             with tab1:
                 if 'p1_en' in pages:
                     img1 = generate_page_illustration(pages['p1_en'])
-                    if img1:
+                    if isinstance(img1, str):
+                        st.warning(img1)
+                    elif img1:
                         st.image(img1, use_container_width=True)
                     st.subheader("🇬🇧 English")
                     st.info(pages['p1_en'])
@@ -97,7 +99,9 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
             with tab2:
                 if 'p2_en' in pages:
                     img2 = generate_page_illustration(pages['p2_en'])
-                    if img2:
+                    if isinstance(img2, str):
+                        st.warning(img2)
+                    elif img2:
                         st.image(img2, use_container_width=True)
                     st.subheader("🇬🇧 English")
                     st.info(pages['p2_en'])
@@ -114,7 +118,9 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
             with tab3:
                 if 'p3_en' in pages:
                     img3 = generate_page_illustration(pages['p3_en'])
-                    if img3:
+                    if isinstance(img3, str):
+                        st.warning(img3)
+                    elif img3:
                         st.image(img3, use_container_width=True)
                     st.subheader("🇬🇧 English")
                     st.info(pages['p3_en'])

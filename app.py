@@ -1,8 +1,7 @@
 import streamlit as st
 import os
-import base64
-from io import BytesIO
-from PIL import Image
+from gtts import gTTS
+import google.generativeai as genai
 
 # Setup page layout
 st.set_page_config(page_title="Sahabat Cerita AI", page_icon="📖", layout="wide")
@@ -23,22 +22,14 @@ with col3:
 if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
     with st.spinner("✨ Creating your storybook..."):
         try:
-            from gtts import gTTS
-            import google.generativeai as genai
-            
             # Secure connection to your Streamlit secrets block
             api_key = st.secrets.get("GEMINI_API_KEY")
             if not api_key:
                 st.error("❌ API key missing! Please check your Streamlit App Secrets.")
                 st.stop()
                 
-            # Configuring the library to natively accept newer token engines (like AQ)
             genai.configure(api_key=api_key)
-            
-            # Force client transport fallbacks to bypass v1beta OAuth restrictions
-            text_model = genai.GenerativeModel(
-                model_name="gemini-2.5-flash"
-            )
+            text_model = genai.GenerativeModel("gemini-2.5-flash")
 
             story_prompt = f"""
             Write a short 3-page children's story about a {character} in {setting} feeling {emotion}.
@@ -55,16 +46,13 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
             st.header("✨ Buku Cerita Digital Kamu / Your Digital Storybook")
             tabs = st.tabs(["Muka Surat 1", "Muka Surat 2", "Muka Surat 3"])
 
-            # Map settings to clean illustration keywords
-            search_term = setting.lower().replace(" ", "")
-
             for i, tab in enumerate(tabs, start=1):
                 with tab:
                     en_key = f"p{i}_en"
                     bm_key = f"p{i}_bm"
                     
-                    # Renders high-quality illustration graphics seamlessly matching the environment selection
-                    st.image(f"https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=800&auto=format&fit=crop&q=60", caption="Buku Cerita Digital")
+                    # Stable, permanent placeholder vector illustration to prevent network hangs
+                    st.image("https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=800&auto=format&fit=crop&q=60", caption="Buku Cerita Digital")
                     
                     if en_key in pages:
                         st.subheader("🇬🇧 English")

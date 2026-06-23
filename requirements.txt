@@ -1,4 +1,5 @@
 streamlit
 gTTS
 google-genai
+google-auth
 pillow

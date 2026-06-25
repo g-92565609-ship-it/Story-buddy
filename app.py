@@ -51,20 +51,10 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
             st.header("✨ Buku Cerita Digital Kamu / Your Digital Storybook")
             tabs = st.tabs(["Muka Surat 1", "Muka Surat 2", "Muka Surat 3"])
 
-            # Premium fixed fairytale storybook images that match any adventure theme gracefully
-            storybook_images = [
-                "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=800", # Open Magic Book (Page 1)
-                "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=800", # Reading Adventure (Page 2)
-                "https://images.unsplash.com/photo-1516979187457-637abb4f9353?q=80&w=800"  # Fairytale Pages (Page 3)
-            ]
-
             for i, tab in enumerate(tabs, start=1):
                 with tab:
                     en_key = f"p{i}_en"
                     bm_key = f"p{i}_bm"
-                    
-                    # Display the beautiful static storybook image
-                    st.image(storybook_images[i-1], caption=f"Ilustrasi Muka Surat {i}: {setting}")
                     
                     if en_key in pages:
                         st.subheader("🇬🇧 English")

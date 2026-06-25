@@ -32,17 +32,14 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
             
             # --- PAGE 1 GENERATION ---
             p1_en = f"Once upon a time, a lovely young creature lived peacefully near the edge of a wonderful kingdom. This beautiful soul was known to everyone as the most energetic {char_en} in the entire land. One bright morning, an unexpected adventure began to unfold, leading directly toward the legendary destination known as the {place_en}. Moving forward step by step, a spectacular feeling started growing inside, making the traveler feel incredibly {emo_en.lower()} about what lay ahead. The journey was filled with tall green trees, wide open horizons, and endless possibilities waiting to be uncovered."
-            
             p1_bm = f"Pada zaman dahulu, seekor makhluk yang sangat comel tinggal dengan aman di pinggir sebuah kerajaan yang indah. Makhluk ini dikenali oleh semua orang sebagai {char_bm} yang paling bertenaga di seluruh kawasan tersebut. Pada suatu pagi yang cerah, sebuah pengembaraan yang tidak dijangka mula berlaku, membawa terus ke destinasi legenda yang dikenali sebagai {place_bm}. Bergerak selangkah demi selangkah, perasaan yang luar biasa mula berkembang di dalam jiwa, menjadikan pengembara itu merasa sangat {emo_bm.lower()} tentang apa yang ada di hadapan. Perjalanan itu dipenuhi dengan pokok hijau yang tinggi."
 
             # --- PAGE 2 GENERATION ---
             p2_en = f"As the path continued deeper into the heart of the {place_en}, many surprising discoveries began to appear along the road. The brave {char_en} noticed glowing light patterns dancing gracefully through the heavy air, illuminating hidden trails that nobody had ever explored before. Every single corner turned brought a brand new wave of wonder, reinforcing that deep, undeniable sense of feeling so {emo_en.lower()}. A mysterious old map found resting under a smooth stone revealed that the true prize was not gold, but the wonderful wisdom gained from exploring this magnificent world."
-            
             p2_bm = f"Apabila laluan berterusan lebih dalam ke jantung {place_bm}, banyak penemuan yang mengejutkan mula muncul di sepanjang jalan tersebut. {char_bm} yang berani melihat corak cahaya yang bersinar menari dengan anggun melintasi udara, menerangi laluan tersembunyi yang tidak pernah diterokai oleh sesiapa pun sebelum ini. Setiap sudut yang dilalui membawa gelombang keajaiban yang baharu, mengukuhkan lagi rasa {emo_bm.lower()} yang mendalam. Satu peta lama misteri yang ditemui di bawah batu licin mendedahkan bahawa hadiah sebenar bukanlah emas."
 
             # --- PAGE 3 GENERATION ---
             p3_en = f"Finally, reaching the absolute highest point of the {place_en} brought the magnificent quest to its perfect conclusion. Looking out across the vast, breathtaking landscape, the proud {char_en} realized that true strength comes from deep within your own heart. Standing tall and proud, the memory of being so wonderfully {emo_en.lower()} during this challenge would remain a guiding light forever. With a joyful smile and a soft sigh of ultimate satisfaction, our little hero promised to return for another grand adventure very soon. The brilliant day ended beautifully under a sky filled with bright twinkling stars."
-            
             p3_bm = f"Akhirnya, mencapai titik tertinggi mutlak di {place_bm} membawa pencarian yang hebat ini kepada kesimpulan yang sangat sempurna. Memandang ke luar merentasi landskap yang luas dan menakjubkan, {char_bm} yang bangga menyedari bahawa kekuatan sebenar datang dari lubuk hati sendiri. Berdiri tinggi dengan penuh rasa bangga, kenangan menjadi sangat {emo_bm.lower()} semasa cabaran ini akan kekal menjadi cahaya panduan selama-lamanya. Dengan senyuman gembira dan keluhan puas, wira kecil kami berjanji untuk kembali tidak lama lagi."
 
             pages = {
@@ -54,20 +51,20 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
             st.header("✨ Buku Cerita Digital Kamu / Your Digital Storybook")
             tabs = st.tabs(["Muka Surat 1", "Muka Surat 2", "Muka Surat 3"])
 
-            img_map = {
-                "Pulau Harta Karun (Treasure Island)": "island",
-                "Hutan Magik (Magic Forest)": "forest",
-                "Angkasa Lepas (Outer Space)": "space",
-                "Istana Awan (Cloud Castle)": "castle"
-            }
-            bg_topic = img_map.get(setting, "nature")
+            # Premium fixed fairytale storybook images that match any adventure theme gracefully
+            storybook_images = [
+                "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=800", # Open Magic Book (Page 1)
+                "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=800", # Reading Adventure (Page 2)
+                "https://images.unsplash.com/photo-1516979187457-637abb4f9353?q=80&w=800"  # Fairytale Pages (Page 3)
+            ]
 
             for i, tab in enumerate(tabs, start=1):
                 with tab:
                     en_key = f"p{i}_en"
                     bm_key = f"p{i}_bm"
                     
-                    st.image(f"https://picsum.photos/800/450?random={i}&q={bg_topic}", caption=f"Ilustrasi Muka Surat {i}: {setting}")
+                    # Display the beautiful static storybook image
+                    st.image(storybook_images[i-1], caption=f"Ilustrasi Muka Surat {i}: {setting}")
                     
                     if en_key in pages:
                         st.subheader("🇬🇧 English")
@@ -88,5 +85,5 @@ if st.button("🚀 Bina Cerita Saya! / Generate My Story!", type="primary"):
                         st.audio(f"p{i}_bm.mp3", format="audio/mp3")
 
         except Exception as err:
-            st.error("An execution or formatting error occurred.")
+            st.error("An error occurred.")
             st.exception(err)
